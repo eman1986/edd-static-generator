@@ -37,12 +37,4 @@ if ($debug) {
 $kernel = new Kernel($env, $debug);
 $application = new Application($kernel);
 
-//$migrationCommands = [
-//    new \App\Command\Migration\DownCommand(),
-//    new \App\Command\Migration\InitCommand(),
-//    new \App\Command\Migration\StatusCommand(),
-//    new \App\Command\Migration\UpCommand(),
-//];
-//$application->addCommands($commands)
-
 $application->run($input);
