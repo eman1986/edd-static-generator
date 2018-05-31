@@ -10,8 +10,9 @@
 
 namespace App\Commands;
 
+use App\Services\PageBuilderService;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Command\Command;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -20,7 +21,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * Class BuildCommand
  * @package App\Commands
  */
-class BuildCommand extends Command
+class BuildCommand extends ContainerAwareCommand
 {
     /**
      * @var LoggerInterface
@@ -28,12 +29,19 @@ class BuildCommand extends Command
     private $logger;
 
     /**
+     * @var PageBuilderService
+     */
+    private $pageBuilderService;
+
+    /**
      * BuildCommand constructor.
      * @param LoggerInterface $logger
+     * @param PageBuilderService $pageBuilderService
      */
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, PageBuilderService $pageBuilderService)
     {
         $this->logger = $logger;
+        $this->pageBuilderService = $pageBuilderService;
 
         parent::__construct();
     }
@@ -61,7 +69,18 @@ class BuildCommand extends Command
 
             $io->section('Getting Page Data...');
 
+            $this->GetPageList();
+
+            $io->listing([]);
+
+            if (!$io->confirm('Everything look correct above? (y/n)', false))
+            {
+                return;
+            }
+
             $io->section('Building Pages...');
+
+//             $this->getContainer()->get('twig')->render($view, $parameters);
 
             $io->section('Cleaning Up...');
 
@@ -73,5 +92,37 @@ class BuildCommand extends Command
 
             $this->logger->error($t);
         }
+    }
+
+//    private function GetPageList()
+//    {
+//        $templateRoot = $this->getContainer()->getParameter('twig.default_path') . '/Pages';
+//
+//        foreach (array_diff(scandir($templateRoot, SCANDIR_SORT_NONE), ['..', '.']) as $path)
+//        {
+//            //
+//        }
+//    }
+
+    /**
+     * @param string $dir
+     * @param array $results
+     * @return array
+     */
+    private function GetPageList($dir = '', array &$results = []) : array
+    {
+        foreach(array_diff(scandir($dir, SCANDIR_SORT_NONE), ['..', '.']) as $path)
+        {
+            if (is_dir($dir . $path . '/'))
+            {
+                $this->GetPageList($dir . $path . '/', $results);
+            }
+            else
+            {
+                $results[] = $dir . $path;
+            }
+        }
+
+        return $results;
     }
 }

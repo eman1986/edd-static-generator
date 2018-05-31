@@ -1,0 +1,41 @@
+{
+  "Menu" : [
+    {
+      "MenuName": "Home",
+      "MenuPath": "/",
+      "MenuIndex": 0,
+      "MenuChildren": []
+    },
+    {
+      "MenuName": "About",
+      "MenuPath": "/about",
+      "MenuIndex": 1,
+      "MenuChildren": []
+    },
+    {
+      "MenuName": "Portfolio",
+      "MenuPath": "/portfolio",
+      "MenuIndex": 2,
+      "MenuChildren": [
+        {
+          "MenuName": "Music",
+          "MenuPath": "/portfolio/music",
+          "MenuIndex": 0,
+          "MenuChildren": []
+        },
+        {
+          "MenuName": "Art",
+          "MenuPath": "/portfolio/art",
+          "MenuIndex": 1,
+          "MenuChildren": []
+        }
+      ]
+    },
+    {
+      "MenuName": "Contact",
+      "MenuPath": "/contact",
+      "MenuIndex": 3,
+      "MenuChildren": []
+    }
+  ]
+}
