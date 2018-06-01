@@ -1,0 +1,23 @@
+{
+  "name": "edd-static-generator",
+  "version": "1.0.0",
+  "description": "site generator",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "@symfony/webpack-encore": "^0.20.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eman1986/edd-static-generator.git"
+  },
+  "author": "Ed",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eman1986/edd-static-generator/issues"
+  },
+  "homepage": "https://github.com/eman1986/edd-static-generator#readme"
+}

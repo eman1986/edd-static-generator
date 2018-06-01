@@ -20,4 +20,5 @@
 /var
 /bin/*
 !bin/console
+/node_modules
 /vendor
