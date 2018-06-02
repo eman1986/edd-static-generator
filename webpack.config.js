@@ -1,33 +1,85 @@
-const Encore = require('@symfony/webpack-encore');
+const webpack = require('webpack');
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const VENDOR_LIBS = [
+    'auth0-lock', 'axios', 'EventEmitter', 'lodash',
+    'moment', 'save', 'sweetalert2', 'uuid',
+    'vee-validate', 'vue', 'vue-router', 'vue-sweetalert2',
+    'vuex'
+];
 
-Encore
-// the project directory where all compiled assets will be stored
-    .setOutputPath('public/build/')
-
-    // the public path used by the web server to access the previous directory
-    .setPublicPath('/build')
-
-    // will create public/build/app.js and public/build/app.css
-    .addEntry('app', './assets/js/app.js')
-
-    // allow legacy applications to use $/jQuery as a global variable
-    .autoProvidejQuery()
-
-    // enable source maps during development
-    .enableSourceMaps(!Encore.isProduction())
-
-    // empty the outputPath dir before each build
-    .cleanupOutputBeforeBuild()
-
-    // show OS notifications when builds finish/fail
-    .enableBuildNotifications()
-
-// create hashed filenames (e.g. app.abc123.css)
-// .enableVersioning()
-
-// allow sass/scss files to be processed
-// .enableSassLoader()
-;
-
-// export the final configuration
-module.exports = Encore.getWebpackConfig();
+module.exports = {
+    entry: {
+        bundle: './tsSrc/web.ts',
+        vendor: VENDOR_LIBS
+    },
+    output: {
+        path: path.join(__dirname, 'public'),
+        filename: '[name].[chunkhash].min.js'
+    },
+    resolve: {
+        extensions: ['.ts', '.js']
+    },
+    optimization: {
+        runtimeChunk: true,
+        splitChunks: {
+            cacheGroups: {
+                commons: {
+                    chunks: "initial",
+                    minChunks: 2,
+                    maxInitialRequests: 5, // The default limit is too small to showcase the effect
+                    minSize: 0 // This is example is too small to create commons chunks
+                },
+                vendor: {
+                    test: /node_modules/,
+                    chunks: "initial",
+                    name: "vendor",
+                    priority: 10,
+                    enforce: true
+                }
+            }
+        }
+    },
+    module: {
+        rules: [
+            {
+                use: 'babel-loader',
+                test: /\.js$/,
+                exclude: /node_modules/
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    'css-loader'
+                ]
+            },
+            {
+                test: /\.(ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
+                use: 'file-loader?name=fonts/[name].[ext]'
+            },
+            {
+                test: /\.ts?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/
+            }
+        ]
+    },
+    plugins: [
+        new MiniCssExtractPlugin({
+            filename: "[name].css",
+            chunkFilename: "[id].css"
+        }),
+        // new webpack.optimize.CommonsChunkPlugin({
+        //     names: ['vendor', 'manifest']
+        // }),
+        new UglifyJsPlugin(),
+        new HtmlWebpackPlugin({
+            title: 'HtmlWebpackPlugin example',
+            favicon: 'favicon.ico',
+            filename: 'templates/shared/master.twig'
+        })
+    ]
+};
