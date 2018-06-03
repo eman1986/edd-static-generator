@@ -53,7 +53,13 @@ class PageBuilderService
         $this->templateRoot = $templateRoot;
     }
 
-    public function CompileList(bool $dryRun = false)
+    /**
+     * Compiles a list of pages to render and creates them
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
+     */
+    public function CompileList() : void
     {
         foreach($this->GetPageList($this->templateRoot) as $node)
         {
@@ -63,46 +69,36 @@ class PageBuilderService
 
             if ($info['filename'] === 'home')
             {
-                $completePath = $this->outputDir.$pathFiltered;
+                $outputPath = $this->outputDir.$pathFiltered;
             }
             else
             {
-                $completePath = $this->outputDir.$pathFiltered.'/'.$info['filename'];
+                $outputPath = $this->outputDir.$pathFiltered . '/' . $info['filename'];
             }
 
-            if (!file_exists($completePath) && !mkdir($completePath, 075, true)
-                && !is_dir($completePath))
+            if (!file_exists($outputPath) && !mkdir($outputPath, 0755, true)
+                && !is_dir($outputPath))
             {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $completePath));
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $outputPath));
             }
 
-            $this->CreatePage($completePath . '/index.htm', $this->templateRoot);
+            $this->CreatePage($this->templateRoot . '/' . $info['filename'], $outputPath);
         }
     }
 
     /**
-     * Create page
-     * @param string $completePath
-     * @param string $content
+     * Creates page from template.
+     * @param string $templatePath
+     * @param string $outputPath
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
      */
-    public function CreatePage(string $completePath, string $content) : void
+    private function CreatePage(string $templatePath, string $outputPath) : void
     {
-        try
-        {
-            $pg = $this->container->get('twig')->render($completePath, []);
-        }
-        catch (\Twig_Error_Loader $e)
-        {
-        }
-        catch (\Twig_Error_Runtime $e)
-        {
-        }
-        catch (\Twig_Error_Syntax $e)
-        {
-        }
+        $pg = $this->container->get('twig')->render($templatePath, []);
 
-
-        file_put_contents($completePath. '/index.htm', $content);
+        file_put_contents($outputPath. '/index.htm', $pg);
     }
 
     /**

@@ -61,26 +61,17 @@ class BuildCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $templateRoot = $this->getContainer()->getParameter('twig.default_path') . '/Pages';
         $io = new SymfonyStyle($input, $output);
 
         try
         {
             $io->title('Page Generator');
 
-            $io->section('Getting Page Data...');
-
-            $this->GetPageList();
-
-            $io->listing([]);
-
-            if (!$io->confirm('Everything look correct above? (y/n)', false))
-            {
-                return;
-            }
-
             $io->section('Building Pages...');
 
-//             $this->getContainer()->get('twig')->render($view, $parameters);
+            $this->pageBuilderService->SetTemplateRoot($templateRoot);
+            $this->pageBuilderService->CompileList();
 
             $io->section('Cleaning Up...');
 
@@ -92,37 +83,5 @@ class BuildCommand extends ContainerAwareCommand
 
             $this->logger->error($t);
         }
-    }
-
-//    private function GetPageList()
-//    {
-//        $templateRoot = $this->getContainer()->getParameter('twig.default_path') . '/Pages';
-//
-//        foreach (array_diff(scandir($templateRoot, SCANDIR_SORT_NONE), ['..', '.']) as $path)
-//        {
-//            //
-//        }
-//    }
-
-    /**
-     * @param string $dir
-     * @param array $results
-     * @return array
-     */
-    private function GetPageList($dir = '', array &$results = []) : array
-    {
-        foreach(array_diff(scandir($dir, SCANDIR_SORT_NONE), ['..', '.']) as $path)
-        {
-            if (is_dir($dir . $path . '/'))
-            {
-                $this->GetPageList($dir . $path . '/', $results);
-            }
-            else
-            {
-                $results[] = $dir . $path;
-            }
-        }
-
-        return $results;
     }
 }
